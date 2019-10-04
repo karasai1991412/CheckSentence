@@ -1,0 +1,12 @@
+#test predict
+sh main.sh -t "He drinks milk" -p "../../Model"
+sh main.sh -t "He drinks apple" -p "../../Model"
+
+#test estimate
+sh main.sh -p "../../Model" -m "estimate" -s "../../data_all.csv" -o "../" -n 20
+
+#test train
+sh main.sh -p "../Model" -m "train" -s "../../data_all.csv" -a "../../taskA_answers_all.csv" -l 20
+
+#test getAcc
+sh main.sh  -o "../" -a "../../taskA_answers_all.csv" -m "getAcc"
