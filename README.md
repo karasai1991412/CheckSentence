@@ -39,3 +39,15 @@ usage: main.py    [--mode 'predict']
 
 usage: main.py    [--mode 'getAcc']
 
+
+## git install
+
+
+    curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | sudo bash
+    sudo apt-get install git-lfs
+    git lfs install
+
+    git clone https://github.com/karasai1991412/CheckSentence
+    
+    git lfs fetch --all
+	
