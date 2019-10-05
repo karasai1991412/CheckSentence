@@ -69,7 +69,7 @@ if __name__ == '__main__':
     Data Argument
     """
     parser.add_argument('--ModelPath', type=str, default="Model")
-    parser.add_argument('--mode', type=str, default='getAcc')
+    parser.add_argument('--mode', type=str, default='predict')
     parser.add_argument('--sentence', type=str, default="He drinks milk")
     parser.add_argument('--linesToTrain', type=int, default=20000)
     parser.add_argument('--n_lines', type=int, default=200)
