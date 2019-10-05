@@ -1,0 +1,7 @@
+tensorflow
+tensorflow_hub
+pandas
+bert
+argparse
+bert-tensorflow
+numpy==1.16.1
