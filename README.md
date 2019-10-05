@@ -9,7 +9,6 @@ pip3 install -r requirement.txt
 ## Training
 
 
-```
 usage: main.py    [--mode 'train']
                   [--ModelPath 'Model']
                   [--linesToTrain 20000]
@@ -20,7 +19,7 @@ usage: main.py    [--mode 'train']
 ## Estimating
 
 
-```
+
 usage: main.py    [--mode 'estimate']
                   [--data_sent_path './data_all.csv']
                   [--data_output './']
@@ -30,7 +29,7 @@ usage: main.py    [--mode 'estimate']
 ## predicting
 
 
-```
+
 usage: main.py    [--mode 'predict']
                   [--sentence 'He drinks milk']
                   
@@ -38,6 +37,5 @@ usage: main.py    [--mode 'predict']
 ## get Accracy
 
 
-```
 usage: main.py    [--mode 'getAcc']
 
