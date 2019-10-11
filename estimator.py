@@ -228,6 +228,7 @@ def config(modelpath):
       model_fn=model_fn,
       config=run_config,
       params={"batch_size": BATCH_SIZE})
+      return estimator
       pass
 
 def getPrediction(in_sentences):

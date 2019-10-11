@@ -40,6 +40,15 @@ usage: main.py    [--mode 'predict']
 usage: main.py    [--mode 'getAcc']
 
 
+## get 10 cross validation
+
+
+usage: main.py    [--mode 'crossValidation']
+                  [--ModelPath 'Model']
+                  [--data_sent_path './data_all.csv']
+                  [--data_answer_path './taskA_answers_all.csv']
+
+
 ## git install
 
 

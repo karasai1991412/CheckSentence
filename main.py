@@ -31,6 +31,9 @@ class Engine:
             #make result_answers_all.csv file and compare it to original
             print(self.get_acc())
             pass
+        elif(self.args.mode == "crossValidation"):
+            train.k_fold_cross_validation(k = 10,data_sent_path = self.args.data_sent_path,data_answer_path=self.args.data_answer_path,ModelPath = self.args.ModelPath)
+            pass
         else:
             #predict the sentence
             estimator.config(self.args.ModelPath)

@@ -8,6 +8,7 @@ import bert
 from bert import run_classifier
 from bert import optimization
 from bert import tokenization
+import numpy as np
 # Set the output directory for saving model file
 # Optionally, set a GCP bucket location
 
@@ -35,25 +36,12 @@ def create_tokenizer_from_hub_module():
 tokenizer = create_tokenizer_from_hub_module()
 #print(tokenizer.tokenize("This here's an example of using the BERT tokenizer"))
 
-def run(OUTPUT_DIR = 'Model',data_sent_path = './data_all.csv',data_answer_path='./taskA_answers_all.csv',NUM_TRAIN_EPOCHS = 3.0,n_train=20000):
+def run(OUTPUT_DIR = 'Model',data_sent_path = './data_all.csv',data_answer_path='./taskA_answers_all.csv',NUM_TRAIN_EPOCHS = 3.0,n_train=20000,train_data=None,test_data=None):
 
   tf.gfile.MakeDirs(OUTPUT_DIR)
-  #print(n_train,"linestotrain")
-  def get_train_test_dataset(n_train=20000):
-      data = data_engine.get_origin_data(data_sent_path,data_answer_path)#get data
-      if(n_train>data.shape[0]):
-            n_train = data.shape[0]
-      data_input = data.head(n_train)
-      test_size = int(data_input.shape[0]/100)#set test size to 1/10 * whole lines
-      train_size = int(data_input.shape[0] - test_size)#set train size to the number of whole lines - test_size
-      test_data = data_input.tail(test_size)#get test_data based on test_size
-      if(test_size == 0):
-            test_data = data_input.tail(1)
-      train_data = data_input.head(train_size)#get train_data based on train_size
-      return train_data,test_data
-      pass
-  train_data,test_data = get_train_test_dataset(n_train=n_train)#set the number of lines to make train and test dataset
-  #print(train_data.shape,test_data.shape)
+  
+  if(train_data == None or test_data == None):
+        return None
   # Use the InputExample class from BERT's run_classifier code to create examples from the data
   test_InputExamples = test_data.apply(lambda x: bert.run_classifier.InputExample(guid=None, # Globally unique ID for bookkeeping, unused in this example
                                                                     text_a = x[DATA_COLUMN], 
@@ -261,28 +249,45 @@ def run(OUTPUT_DIR = 'Model',data_sent_path = './data_all.csv',data_answer_path=
   estimator.evaluate(input_fn=test_input_fn, steps=None)
   return estimator
 
-def getPrediction(in_sentences):
+from sklearn.model_selection import KFold
+import estimator
+def k_fold_cross_validation(k = 100,data_sent_path = './data_all.csv',data_answer_path='./taskA_answers_all.csv',ModelPath = "Model"):
+      # Applying k-Fold Cross Validation
+      data = data_engine.get_origin_data(data_sent_path,data_answer_path)
+      kf = KFold(n_splits=k)
+      n_list_acc = []
+      for train,test in kf.split(data['sent']):
+            train_data = data.iloc[train]
+            test_data = data.iloc[test]
+            # estimator =  run(train_data=train_data,test_data=test_data)
+            estimator_local = estimator.config(ModelPath)
+            result = getPrediction(in_sentences=test_data['sent'],estimator=estimator_local)
+            labels = [1 if item[2] == 'Sensitive' else 0 for item in result]
+            n_filter = test_data['label'] == labels
+            acc = int(test_data[n_filter].shape[0]*100/test_data.shape[0])
+            print(acc)
+            n_list_acc.append(acc)
+            pass
+      print(np.mean(n_list_acc),n_list_acc)
+      return np.mean(n_list_acc),n_list_acc
+      pass
+def get_train_test_data(k = 10,data_sent_path = './data_all.csv',data_answer_path='./taskA_answers_all.csv'):
+      data = data_engine.get_origin_data(data_sent_path,data_answer_path)
+      test_size = int(len(data)/10)
+      train_size = len(data) - test_size
+      train = data.iloc[:train_size]
+      test = data.iloc[train_size:]
+      return (train,test)
+      pass
+def getPrediction(in_sentences,estimator = None):
+    if(estimator == None):
+          return None
     labels = ["Non-Sensitive", "Sensitive"]
-    input_examples = [run_classifier.InputExample(guid="", text_a = x, text_b = None, label = 0) for x in in_sentences] # here, "" is just a dummy label
+    input_examples = [run_classifier.InputExample(guid="", text_a = x, text_b = None, label = 0) for x in in_sentences]
     input_features = run_classifier.convert_examples_to_features(input_examples, label_list, MAX_SEQ_LENGTH, tokenizer)
     predict_input_fn = run_classifier.input_fn_builder(features=input_features, seq_length=MAX_SEQ_LENGTH, is_training=False, drop_remainder=False)
-    estimator =  run()
     predictions = estimator.predict(predict_input_fn)
     return [(sentence, prediction['probabilities'], labels[prediction['labels']]) for sentence, prediction in zip(in_sentences, predictions)]
 
 
 
-# pred_sentences = [
-#   "He drinks apple",
-#   "He drinks milk",
-#   "A mosquito stings me",
-#   "I sting a mosquito",
-#   "A niece is a person.",
-#   "A giraffe is a person.",
-#   "I like to ride my chocolate",
-#   "I like to ride my bike",
-#   "he put elephant into the jug",
-# ]
-# predictions = getPrediction(pred_sentences)
-
-# print(predictions,"predictions")
