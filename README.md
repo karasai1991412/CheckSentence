@@ -1,11 +1,4 @@
 
-## Installing
-# on windows
-pip install -r requirement.txt
-# on linux
-pip3 install -r requirement.txt
-
-
 ## Training
 
 
